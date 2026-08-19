@@ -1,9 +1,8 @@
-
 class loginPage {
  
   // ---------- Page Actions ----------
  
- visitPage() {
+  visitPage() {
     cy.visit("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login", { failOnStatusCode: false });
     cy.get('input[name="username"]', { timeout: 30000 }).should("exist").and("be.visible");
   }
@@ -22,6 +21,14 @@ class loginPage {
  
   clickForgotPassword() {
     cy.get(".orangehrm-login-forgot-header").click();
+  }
+ 
+  getUsernameField() {
+    return cy.get('input[name="username"]');
+  }
+ 
+  getAlertInvalidCredentials() {
+    return cy.get(".oxd-alert-content-text");
   }
  
   login(username, password) {
