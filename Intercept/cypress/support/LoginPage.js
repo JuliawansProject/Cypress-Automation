@@ -1,158 +1,126 @@
-class LoginPage {
-  // ---------- Selectors ----------
-  elements = {
-    logo: () => cy.get(".orangehrm-login-branding img"),
-    usernameInput: (opts = {}) => cy.get('input[name="username"]', opts),
-    passwordInput: (opts = {}) => cy.get('input[name="password"]', opts),
-    loginButton: () => cy.get('button[type="submit"]'),
-    forgotPasswordLink: () => cy.get(".orangehrm-login-forgot-header"),
-    loginTitle: () => cy.get(".orangehrm-login-title"),
-    alertInvalidCredentials: () => cy.get(".oxd-alert-content-text"),
-    requiredErrorMessages: () =>
-      cy.get(".oxd-input-group .oxd-input-field-error-message"),
-    dashboardHeader: () => cy.get(".oxd-topbar-header-breadcrumb h6"),
-    resetPasswordTitle: () => cy.get(".orangehrm-forgot-password-title"),
-    userDropdown: () => cy.get(".oxd-userdropdown-tab"),
-    logoutMenuItem: () => cy.contains("a", "Logout"),
-    alertBox: () => cy.get(".oxd-alert"),
-  };
 
-  interceptRequest(method, url, alias) {
-    cy.intercept(method, url).as(alias);
-    return this;
+class loginPage {
+ 
+  // ---------- Page Actions ----------
+ 
+ visitPage() {
+    cy.visit("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login", { failOnStatusCode: false });
+    cy.get('input[name="username"]', { timeout: 30000 }).should("exist").and("be.visible");
   }
-
-  interceptLoginPageLoad(alias = "loginPageLoad") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login", alias);
+ 
+  inputUsername(username) {
+    cy.get('input[name="username"]', { timeout: 15000 }).should("be.visible").clear().type(username, { delay: 20 });
   }
-
-  interceptLoginRequest(alias = "loginRequest") {
-    return this.interceptRequest("POST", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/validate", alias);
+ 
+  inputPassword(password) {
+    cy.get('input[name="password"]', { timeout: 15000 }).should("be.visible").clear().type(password, { delay: 20 });
   }
-
-  interceptTimeAtWork(alias = "timeAtWork") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/time-at-work*", alias);
+ 
+  clickLoginBtn() {
+    cy.get('button[type="submit"]').should("be.visible").click();
   }
-
-  interceptActionSummary(alias = "actionSummary") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/action-summary", alias);
-  }
-
-  interceptBuzzFeed(alias = "buzzFeed") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/buzz/feed*", alias);
-  }
-
-  interceptSubunit(alias = "subunit") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/subunit", alias);
-  }
-
-  interceptLocations(alias = "locations") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/locations", alias);
-  }
-
-  interceptAppCss(alias = "appCss") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/dist/css/app.css*", alias);
-  }
-
-  interceptAppJs(alias = "appJs") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/dist/js/app.js*", alias);
-  }
-
-  interceptI18nMessages(alias = "i18nMessages") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/core/i18n/messages", alias);
-  }
-
-  interceptForgotPassword(alias = "forgotPasswordPage") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/requestPasswordResetCode", alias);
-  }
-
-  interceptLogout(alias = "logoutRequest") {
-    return this.interceptRequest("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/logout", alias);
-  }
-
-  visit() {
-    cy.visit("/web/index.php/auth/login", { failOnStatusCode: false });
-    this.elements.usernameInput({ timeout: 30000 }).should("exist").and("be.visible");
-    return this;
-  }
-
-  fillUsername(username) {
-    if (username && username.length > 0) {
-      this.elements.usernameInput({ timeout: 15000 }).should("be.visible").clear().type(username, { delay: 20 });
-    }
-    return this;
-  }
-
-  fillPassword(password) {
-    if (password && password.length > 0) {
-      this.elements.passwordInput({ timeout: 15000 }).should("be.visible").clear().type(password, { delay: 20 });
-    }
-    return this;
-  }
-
-  clickLoginButton() {
-    this.elements.loginButton().click();
-    return this;
-  }
-
+ 
   clickForgotPassword() {
-    this.elements.forgotPasswordLink().click();
-    return this;
+    cy.get(".orangehrm-login-forgot-header").click();
   }
-
+ 
   login(username, password) {
-    this.fillUsername(username);
-    this.fillPassword(password);
-    this.clickLoginButton();
-    return this;
+    this.inputUsername(username);
+    this.inputPassword(password);
+    this.clickLoginBtn();
   }
-
+ 
   logout() {
-    this.elements.userDropdown().click();
-    this.elements.logoutMenuItem().click();
-    return this;
+    cy.get(".oxd-userdropdown-tab").click();
+    cy.contains("a", "Logout").click();
   }
-
-  verifyLoginPageIsDisplayed() {
-    this.elements.logo().should("be.visible");
-    this.elements.loginTitle().should("be.visible").and("contain.text", "Login");
-    this.elements.usernameInput().should("be.visible");
-    this.elements.passwordInput().should("be.visible");
-    this.elements.loginButton().should("be.visible").and("contain.text", "Login");
-    this.elements.forgotPasswordLink().should("be.visible").and("contain.text", "Forgot your password");
-    return this;
+ 
+  // ---------- Assertions ----------
+ 
+  assertionLoginPageDisplayed() {
+    cy.get(".orangehrm-login-branding img").should("be.visible");
+    cy.get(".orangehrm-login-title").should("be.visible").and("contain.text", "Login");
+    cy.get('input[name="username"]').should("be.visible");
+    cy.get('input[name="password"]').should("be.visible");
+    cy.get('button[type="submit"]').should("be.visible").and("contain.text", "Login");
+    cy.get(".orangehrm-login-forgot-header").should("be.visible").and("contain.text", "Forgot your password");
   }
-
-  verifyLoginSuccess() {
+ 
+  assertionLoginSuccess() {
     cy.url().should("include", "/dashboard/index");
-    this.elements.dashboardHeader().should("be.visible").and("contain.text", "Dashboard");
-    return this;
+    cy.get(".oxd-topbar-header-breadcrumb h6").should("be.visible").and("contain.text", "Dashboard");
   }
-
-  verifyInvalidCredentialsMessage() {
-    this.elements.alertInvalidCredentials().should("be.visible").and("contain.text", "Invalid credentials");
+ 
+  assertionInvalidCredentials() {
+    cy.get(".oxd-alert-content-text").should("be.visible").and("contain.text", "Invalid credentials");
     cy.url().should("include", "/auth/login");
-    return this;
   }
-
-  verifyRequiredMessageCount(expectedCount) {
-    this.elements.requiredErrorMessages().should("have.length", expectedCount);
-    this.elements.requiredErrorMessages().each(($el) => {
+ 
+  assertionRequiredMessageCount(expectedCount) {
+    cy.get(".oxd-input-group .oxd-input-field-error-message").should("have.length", expectedCount);
+    cy.get(".oxd-input-group .oxd-input-field-error-message").each(($el) => {
       cy.wrap($el).should("contain.text", "Required");
     });
-    return this;
   }
-
-  verifyForgotPasswordPage() {
+ 
+  assertionForgotPasswordPage() {
     cy.url().should("include", "/auth/requestPasswordResetCode");
-    this.elements.resetPasswordTitle().should("contain.text", "Reset Password");
-    return this;
+    cy.get(".orangehrm-forgot-password-title").should("contain.text", "Reset Password");
   }
-
-  verifyRedirectedToLogin() {
+ 
+  assertionRedirectedToLogin() {
     cy.url().should("include", "/auth/login");
-    return this;
+  }
+ 
+  // ---------- Network Intercepts ----------
+ 
+  interceptLoginPageLoad(alias = "loginPageLoad") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login").as(alias);
+  }
+ 
+  interceptLoginRequest(alias = "loginRequest") {
+    cy.intercept("POST", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/validate").as(alias);
+  }
+ 
+  interceptTimeAtWork(alias = "timeAtWork") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/time-at-work*").as(alias);
+  }
+ 
+  interceptActionSummary(alias = "actionSummary") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/action-summary").as(alias);
+  }
+ 
+  interceptBuzzFeed(alias = "buzzFeed") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/buzz/feed*").as(alias);
+  }
+ 
+  interceptSubunit(alias = "subunit") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/subunit").as(alias);
+  }
+ 
+  interceptLocations(alias = "locations") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/locations").as(alias);
+  }
+ 
+  interceptAppCss(alias = "appCss") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/dist/css/app.css*").as(alias);
+  }
+ 
+  interceptAppJs(alias = "appJs") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/dist/js/app.js*").as(alias);
+  }
+ 
+  interceptI18nMessages(alias = "i18nMessages") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/core/i18n/messages").as(alias);
+  }
+ 
+  interceptForgotPassword(alias = "forgotPasswordPage") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/requestPasswordResetCode").as(alias);
+  }
+ 
+  interceptLogout(alias = "logoutRequest") {
+    cy.intercept("GET", "https://opensource-demo.orangehrmlive.com/web/index.php/auth/logout").as(alias);
   }
 }
-
-export default new LoginPage();
+ 
+export default new loginPage();
