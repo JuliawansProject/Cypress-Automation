@@ -75,15 +75,11 @@ class LoginPage {
     this.elements.usernameInput({ timeout: 30000 }).should("exist").and("be.visible");
     return this;
   }
-
-  // Khusus dipakai test yang butuh app.js/asset ter-request ULANG lewat
-  // network (mis. TC_LG_007). Pakai CDP command untuk hapus cache browser
-  // secara langsung — lebih stabil daripada modifikasi header response,
-  // karena tidak ikut campur proses loading resource (tidak bikin page
-  // load event nge-hang).
-  clearBrowserCache() {
-    Cypress.automation("remote:debugger:protocol", {
-      command: "Network.clearBrowserCache",
+ clearBrowserCache() {
+    cy.then(() => {
+      return Cypress.automation("remote:debugger:protocol", {
+        command: "Network.clearBrowserCache",
+      });
     });
     return this;
   }
