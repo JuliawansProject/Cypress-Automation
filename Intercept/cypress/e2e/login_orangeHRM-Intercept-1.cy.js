@@ -89,20 +89,20 @@ describe("Fitur Login - OrangeHRM", () => {
     LoginPage.verifyLoginSuccess();
   });
  
-  it("TC_LG_007 - Memuat JavaScript aplikasi", () => {
+ it("TC_LG_007 - Login dengan username valid dan password kosong", () => {
     LoginPage.interceptAppJs("appJs");
- 
-    cy.visit(
-      "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login",
-    );
- 
+    cy.reload();
     cy.wait("@appJs").then((interception) => {
       expect(interception.request.method).to.equal("GET");
       expect(interception.response.statusCode).to.be.oneOf([200, 304]);
     });
- 
-    LoginPage.elements.usernameInput().should("be.visible");
-  });
+    LoginPage.login(
+      data.validUsernameEmptyPassword.username,
+      data.validUsernameEmptyPassword.password
+    );
+    LoginPage.verifyRequiredMessageCount(1);
+});
+  
  
   // TC_LG_008
   it("TC_LG_008 - Login valid dan memuat pesan localization", () => {
