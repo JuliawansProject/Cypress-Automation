@@ -1,10 +1,3 @@
-/**
- * LoginPage.js
- * Page Object Model untuk halaman Login OrangeHRM.
- * Semua selector & aksi terkait halaman login dikumpulkan di sini
- * supaya test case (file *.cy.js) tetap rapi dan mudah dibaca.
- */
-
 class LoginPage {
   // ---------- Selectors ----------
   elements = {

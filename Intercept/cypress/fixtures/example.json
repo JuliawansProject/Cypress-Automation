@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-N
 {
   "validUser": {
     "username": "Admin",
@@ -58,10 +56,3 @@ N
     "password": "admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123admin123"
   }
 }
-=======
-{
-  "name": "Using fixtures to represent data",
-  "email": "hello@cypress.io",
-  "body": "Fixtures are a great way to mock data for responses to routes"
-}
->>>>>>> 2bb9ca417143fb91382ad80b676ee9b5f7e430cf

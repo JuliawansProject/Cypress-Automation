@@ -16,14 +16,14 @@ class LoginPage {
     logoutMenuItem: () => cy.contains("a", "Logout"),
     alertBox: () => cy.get(".oxd-alert"),
   };
-
+ 
   // ---------- Intercepts ----------
-
+ 
   interceptRequest(method, url, alias) {
     cy.intercept(method, url).as(alias);
     return this;
   }
-
+ 
   interceptLoginPageLoad(alias = "loginPageLoad") {
     return this.interceptRequest(
       "GET",
@@ -31,7 +31,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptLoginRequest(alias = "loginRequest") {
     return this.interceptRequest(
       "POST",
@@ -39,7 +39,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptTimeAtWork(alias = "timeAtWork") {
     return this.interceptRequest(
       "GET",
@@ -47,7 +47,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptActionSummary(alias = "actionSummary") {
     return this.interceptRequest(
       "GET",
@@ -55,7 +55,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptBuzzFeed(alias = "buzzFeed") {
     return this.interceptRequest(
       "GET",
@@ -63,7 +63,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptSubunit(alias = "subunit") {
     return this.interceptRequest(
       "GET",
@@ -71,7 +71,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptLocations(alias = "locations") {
     return this.interceptRequest(
       "GET",
@@ -79,7 +79,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptAppCss(alias = "appCss") {
     return this.interceptRequest(
       "GET",
@@ -87,7 +87,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptAppJs(alias = "appJs") {
     return this.interceptRequest(
       "GET",
@@ -95,7 +95,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptI18nMessages(alias = "i18nMessages") {
     return this.interceptRequest(
       "GET",
@@ -103,9 +103,7 @@ class LoginPage {
       alias,
     );
   }
-
-  // ---- Ditambahkan: sebelumnya dipanggil di login.cy.js tapi belum ada ----
-
+ 
   interceptForgotPassword(alias = "forgotPasswordPage") {
     return this.interceptRequest(
       "GET",
@@ -113,7 +111,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   interceptLogout(alias = "logoutRequest") {
     return this.interceptRequest(
       "GET",
@@ -121,7 +119,7 @@ class LoginPage {
       alias,
     );
   }
-
+ 
   // ---------- Actions ----------
   visit() {
     cy.visit("/web/index.php/auth/login", {
@@ -133,7 +131,7 @@ class LoginPage {
       .and("be.visible");
     return this;
   }
-
+ 
   fillUsername(username) {
     if (username && username.length > 0) {
       this.elements
@@ -144,7 +142,7 @@ class LoginPage {
     }
     return this;
   }
-
+ 
   fillPassword(password) {
     if (password && password.length > 0) {
       this.elements
@@ -155,30 +153,30 @@ class LoginPage {
     }
     return this;
   }
-
+ 
   clickLoginButton() {
     this.elements.loginButton().click();
     return this;
   }
-
+ 
   clickForgotPassword() {
     this.elements.forgotPasswordLink().click();
     return this;
   }
-
+ 
   login(username, password) {
     this.fillUsername(username);
     this.fillPassword(password);
     this.clickLoginButton();
     return this;
   }
-
+ 
   logout() {
     this.elements.userDropdown().click();
     this.elements.logoutMenuItem().click();
     return this;
   }
-
+ 
   // ---------- Assertions helpers ----------
   verifyLoginPageIsDisplayed() {
     this.elements.logo().should("be.visible");
@@ -198,7 +196,7 @@ class LoginPage {
       .and("contain.text", "Forgot your password");
     return this;
   }
-
+ 
   verifyLoginSuccess() {
     cy.url().should("include", "/dashboard/index");
     this.elements
@@ -207,7 +205,7 @@ class LoginPage {
       .and("contain.text", "Dashboard");
     return this;
   }
-
+ 
   verifyInvalidCredentialsMessage() {
     this.elements
       .alertInvalidCredentials()
@@ -216,7 +214,7 @@ class LoginPage {
     cy.url().should("include", "/auth/login");
     return this;
   }
-
+ 
   verifyRequiredMessageCount(expectedCount) {
     this.elements.requiredErrorMessages().should("have.length", expectedCount);
     this.elements.requiredErrorMessages().each(($el) => {
@@ -224,17 +222,17 @@ class LoginPage {
     });
     return this;
   }
-
+ 
   verifyForgotPasswordPage() {
     cy.url().should("include", "/auth/requestPasswordResetCode");
     this.elements.resetPasswordTitle().should("contain.text", "Reset Password");
     return this;
   }
-
+ 
   verifyRedirectedToLogin() {
     cy.url().should("include", "/auth/login");
     return this;
   }
 }
-
+ 
 export default new LoginPage();
