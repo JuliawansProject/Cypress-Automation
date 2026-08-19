@@ -75,14 +75,6 @@ class LoginPage {
     this.elements.usernameInput({ timeout: 30000 }).should("exist").and("be.visible");
     return this;
   }
- clearBrowserCache() {
-    cy.then(() => {
-      return Cypress.automation("remote:debugger:protocol", {
-        command: "Network.clearBrowserCache",
-      });
-    });
-    return this;
-  }
 
   fillUsername(username) {
     if (username && username.length > 0) {

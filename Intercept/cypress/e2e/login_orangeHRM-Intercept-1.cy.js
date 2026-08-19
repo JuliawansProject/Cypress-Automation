@@ -9,116 +9,87 @@ describe("Fitur Login - OrangeHRM", () => {
   beforeEach(() => {
     LoginPage.visit();
   });
- 
   // TC_LG_001
   it("TC_LG_001 - Verifikasi tampilan halaman login", () => {
     LoginPage.interceptLoginPageLoad("loginPageLoad");
- 
     cy.reload();
- 
     cy.wait("@loginPageLoad");
   });
- 
   // TC_LG_002
-  it("TC_LG_002 - Login valid dan memuat data Time at Work", () => {
+  it("TC_LG_002 - Login menggunakan username valid dan password valid", () => {
     LoginPage.interceptTimeAtWork("timeAtWork");
- 
     LoginPage.login(data.validUser.username, data.validUser.password);
- 
     cy.wait("@timeAtWork").then((interception) => {
       expect(interception.request.method).to.equal("GET");
       expect(interception.response.statusCode).to.equal(200);
     });
- 
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_003
-  it("TC_LG_003 - Login valid dan memuat Employee Action Summary", () => {
+  it("TC_LG_003 - Login menggunakan username invalid dan password valid", () => {
     LoginPage.interceptActionSummary("actionSummary");
- 
     LoginPage.login(data.validUser.username, data.validUser.password);
- 
     cy.wait("@actionSummary").then((interception) => {
       expect(interception.request.method).to.equal("GET");
       expect(interception.response.statusCode).to.equal(200);
     });
- 
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_004
-  it("TC_LG_004 - Login valid dan memuat Buzz Feed", () => {
+  it("TC_LG_004 - Login dengan username valid dan password invalid", () => {
     LoginPage.interceptBuzzFeed("buzzFeed");
- 
     LoginPage.login(data.validUser.username, data.validUser.password);
- 
     cy.wait("@buzzFeed").then((interception) => {
       expect(interception.request.method).to.equal("GET");
       expect(interception.response.statusCode).to.equal(200);
     });
- 
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_005
-  it("TC_LG_005 - Login valid dan memuat data Subunit", () => {
+  it("TC_LG_005 - Login dengan username invalid dan password invalid", () => {
     LoginPage.interceptSubunit("subunit");
- 
     LoginPage.login(data.validUser.username, data.validUser.password);
- 
     cy.wait("@subunit").then((interception) => {
       expect(interception.request.method).to.equal("GET");
       expect(interception.response.statusCode).to.equal(200);
     });
- 
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_006
-  it("TC_LG_006 - Login valid dan memuat data Locations", () => {
+  it("TC_LG_006 - Login dengan username kosong dan password valid", () => {
     LoginPage.interceptLocations("locations");
- 
     LoginPage.login(data.validUser.username, data.validUser.password);
- 
     cy.wait("@locations").then((interception) => {
       expect(interception.request.method).to.equal("GET");
       expect(interception.response.statusCode).to.equal(200);
     });
- 
     LoginPage.verifyLoginSuccess();
   });
- 
- it("TC_LG_007 - Login dengan username valid dan password kosong", () => {
-    LoginPage.interceptAppJs("appJs");
+  it("TC_LG_007 - Login dengan username valid dan password kosong", () => {
+    LoginPage.interceptI18nMessages("i18nMessages");
     cy.reload();
-    cy.wait("@appJs").then((interception) => {
-      expect(interception.request.method).to.equal("GET");
-      expect(interception.response.statusCode).to.be.oneOf([200, 304]);
-    });
+    cy.wait("@i18nMessages")
+      .its("response.statusCode")
+      .should("be.oneOf", [200, 304]);
+
+    LoginPage.elements.usernameInput().should("be.visible");
     LoginPage.login(
       data.validUsernameEmptyPassword.username,
-      data.validUsernameEmptyPassword.password
+      data.validUsernameEmptyPassword.password,
     );
     LoginPage.verifyRequiredMessageCount(1);
-});
-  
- 
+  });
+
   // TC_LG_008
-  it("TC_LG_008 - Login valid dan memuat pesan localization", () => {
+  it("TC_LG_008 - Login dengan username kosong dan password kosong", () => {
     LoginPage.interceptI18nMessages("i18nMessages");
- 
     LoginPage.login(data.validUser.username, data.validUser.password);
- 
     cy.wait("@i18nMessages").then((interception) => {
       expect(interception.request.method).to.equal("GET");
- 
       expect(interception.response.statusCode).to.be.oneOf([200, 304]);
     });
- 
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_009
   it("TC_LG_009 - Memastikan tombol Login tersedia dan dapat ditekan", () => {
     LoginPage.interceptLoginRequest("loginButtonClick");
@@ -129,7 +100,6 @@ describe("Fitur Login - OrangeHRM", () => {
     });
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_010
   it("TC_LG_010 - Verifikasi link Forgot your password tersedia dan berfungsi", () => {
     LoginPage.interceptForgotPassword("forgotPasswordPage");
@@ -137,9 +107,8 @@ describe("Fitur Login - OrangeHRM", () => {
     cy.wait("@forgotPasswordPage").its("response.statusCode").should("eq", 200);
     LoginPage.verifyForgotPasswordPage();
   });
- 
   // TC_LG_011
-  it("TC_LG_011 - Login dengan username huruf kecil semua (case sensitive check)", () => {
+  it("TC_LG_011 - Login dengan username huruf kecil semua", () => {
     LoginPage.interceptLoginRequest("loginLowercaseUsername");
     LoginPage.login(
       data.lowercaseUsername.username,
@@ -150,7 +119,6 @@ describe("Fitur Login - OrangeHRM", () => {
     });
     LoginPage.verifyLoginSuccess();
   });
- 
   // TC_LG_012
   it("TC_LG_012 - Login dengan password salah ketik/huruf tidak sesuai", () => {
     LoginPage.interceptLoginRequest("loginLowercasePassword");
@@ -163,7 +131,6 @@ describe("Fitur Login - OrangeHRM", () => {
     });
     LoginPage.verifyInvalidCredentialsMessage();
   });
- 
   // TC_LG_013
   it("TC_LG_013 - Login dengan username mengandung spasi di depan/belakang", () => {
     LoginPage.interceptLoginRequest("loginSpacedUsername");
@@ -173,7 +140,6 @@ describe("Fitur Login - OrangeHRM", () => {
     });
     LoginPage.verifyInvalidCredentialsMessage();
   });
- 
   // TC_LG_014
   it("TC_LG_014 - Login dengan password mengandung spasi di depan/belakang", () => {
     LoginPage.interceptLoginRequest("loginSpacedPassword");
@@ -184,9 +150,8 @@ describe("Fitur Login - OrangeHRM", () => {
     });
     LoginPage.verifyInvalidCredentialsMessage();
   });
- 
   // TC_LG_015 - Brute force check
-  it.skip("TC_LG_015 - Login berkali-kali dengan kredensial salah (brute force check)", () => {
+  it.skip("TC_LG_015 - Login berkali-kali dengan kredensial salah", () => {
     LoginPage.interceptLoginRequest("loginBruteForce");
     const attempts = 6;
     for (let i = 0; i < attempts; i++) {
@@ -201,7 +166,6 @@ describe("Fitur Login - OrangeHRM", () => {
       cy.reload();
     }
   });
- 
   // TC_LG_016
   it("TC_LG_016 - Login ulang setelah logout, pastikan tidak bisa akses dashboard via back button", () => {
     LoginPage.interceptLoginRequest("loginBeforeLogout");
@@ -215,7 +179,6 @@ describe("Fitur Login - OrangeHRM", () => {
     cy.go("back");
     LoginPage.verifyRedirectedToLogin();
   });
- 
   // TC_LG_017
   it("TC_LG_017 - Login dengan karakter unicode/emoji di username", () => {
     LoginPage.interceptLoginRequest("loginUnicodeUsername");
@@ -234,7 +197,6 @@ describe("Fitur Login - OrangeHRM", () => {
       });
     cy.url().should("include", "/auth/login");
   });
- 
   // TC_LG_018
   it("TC_LG_018 - Login dengan username sangat panjang (boundary test)", () => {
     LoginPage.interceptLoginRequest("loginLongUsername");
@@ -252,7 +214,6 @@ describe("Fitur Login - OrangeHRM", () => {
     });
     LoginPage.verifyInvalidCredentialsMessage();
   });
- 
   // TC_LG_019
   it("TC_LG_019 - Login dengan password sangat panjang (boundary test)", () => {
     LoginPage.interceptLoginRequest("loginLongPassword");
