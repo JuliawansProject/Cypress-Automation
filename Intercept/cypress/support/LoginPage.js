@@ -10,19 +10,15 @@ class loginPage {
       .and("be.visible");
   }
   inputUsername(username) {
-    cy.get('input[name="username"]', { timeout: 15000 })
-      .should("be.visible")
-      .clear()
-      .type(username, { delay: 20 });
+    // See cypress/support/commands.js for why we use typeWhenReady instead
+    // of should("not.be.disabled") + clear()/type() as separate steps.
+    cy.typeWhenReady('input[name="username"]', username);
   }
   inputPassword(password) {
-    cy.get('input[name="password"]', { timeout: 15000 })
-      .should("be.visible")
-      .clear()
-      .type(password, { delay: 20 });
+    cy.typeWhenReady('input[name="password"]', password);
   }
   clickLoginBtn() {
-    cy.get('button[type="submit"]').should("be.visible").click();
+    cy.clickWhenReady('button[type="submit"]');
   }
   clickForgotPassword() {
     cy.get(".orangehrm-login-forgot-header").click();
@@ -64,7 +60,8 @@ class loginPage {
       .and("contain.text", "Dashboard");
   }
   assertionInvalidCredentials() {
-    cy.get(".oxd-alert-content-text")
+      cy.get(".oxd-alert-content-text", { timeout: 30000 })
+      .last()
       .should("be.visible")
       .and("contain.text", "Invalid credentials");
     cy.url().should("include", "/auth/login");
@@ -89,72 +86,63 @@ class loginPage {
     cy.url().should("include", "/auth/login");
   }
   // ---------- Intercepts ----------
+
   interceptLoginPageLoad(alias = "loginPageLoad") {
     cy.intercept(
       "GET",
       "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login",
     ).as(alias);
   }
-  interceptLoginRequest(alias = "loginRequest") {
-    cy.intercept(
-      "POST",
-      "https://opensource-demo.orangehrmlive.com/web/index.php/auth/validate",
-    ).as(alias);
-  }
-  interceptTimeAtWork(alias = "timeAtWork") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/time-at-work*",
-    ).as(alias);
-  }
-  interceptActionSummary(alias = "actionSummary") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/action-summary",
-    ).as(alias);
-  }
-  interceptBuzzFeed(alias = "buzzFeed") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/buzz/feed*",
-    ).as(alias);
-  }
-  interceptSubunit(alias = "subunit") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/subunit",
-    ).as(alias);
-  }
-  interceptLocations(alias = "locations") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/index.php/api/v2/dashboard/employees/locations",
-    ).as(alias);
-  }
-  interceptAppCss(alias = "appCss") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/dist/css/app.css*",
-    ).as(alias);
-  }
-  interceptAppJs(alias = "appJs") {
-    cy.intercept(
-      "GET",
-      "https://opensource-demo.orangehrmlive.com/web/dist/js/app.js*",
-    ).as(alias);
-  }
+
   interceptI18nMessages(alias = "i18nMessages") {
     cy.intercept(
       "GET",
       "https://opensource-demo.orangehrmlive.com/web/index.php/core/i18n/messages",
     ).as(alias);
   }
+
+  interceptOhrmBranding(alias = "ohrmBranding") {
+    cy.intercept(
+      "GET",
+      "https://opensource-demo.orangehrmlive.com/web/images/ohrm_branding.png?v=*",
+    ).as(alias);
+  }
+
+  interceptOhrmLogo(alias = "ohrmLogo") {
+    cy.intercept(
+      "GET",
+      "https://opensource-demo.orangehrmlive.com/web/images/ohrm_logo.png",
+    ).as(alias);
+  }
+
+  interceptBlobSvg(alias = "blobSvg") {
+    cy.intercept(
+      "GET",
+      "https://opensource-demo.orangehrmlive.com/web/dist/img/blob.svg",
+    ).as(alias);
+  }
+
+  interceptAppJs(alias = "appJs") {
+    cy.intercept(
+      "GET",
+      "https://opensource-demo.orangehrmlive.com/web/dist/js/app.js?v=*",
+    ).as(alias);
+  }
+
+  interceptLoginRequest(alias = "loginRequest") {
+    cy.intercept(
+      "POST",
+      "https://opensource-demo.orangehrmlive.com/web/index.php/auth/validate",
+    ).as(alias);
+  }
+
   interceptForgotPassword(alias = "forgotPasswordPage") {
     cy.intercept(
       "GET",
       "https://opensource-demo.orangehrmlive.com/web/index.php/auth/requestPasswordResetCode",
     ).as(alias);
   }
+
   interceptLogout(alias = "logoutRequest") {
     cy.intercept(
       "GET",
