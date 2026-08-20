@@ -10,6 +10,7 @@ class loginPage {
       .and("be.visible");
   }
   inputUsername(username) {
+
     cy.typeWhenReady('input[name="username"]', username);
   }
   inputPassword(password) {
