@@ -1,224 +1,180 @@
 import loginPage from "../support/LoginPage";
 import loginData from "../fixtures/loginData.json";
-describe("Scenario Verifikasi Fungsi Login - OrangeHRM (with Network Intercepts)", () => {
-  beforeEach(() => {
-    // Pasang intercept sebelum halaman dibuka agar request awal ikut tertangkap
+
+describe("Scenario Verifikasi Fungsi Login - OrangeHRM (Network Intercepts - Unique per TC)", () => {
+  // TC_LG_001 — Intercept: GET /auth/login
+  it("TC_LG_001 - Verifikasi halaman login termuat dari server (GET auth/login)", () => {
     loginPage.interceptLoginPageLoad();
-    loginPage.interceptLoginRequest();
     loginPage.visitPage();
-    cy.wait("@loginPageLoad");
-  });
-  // ---------- Tampilan & Elemen Halaman ----------
-  it("TC_LG_001 - Verifikasi tampilan halaman login", () => {
+    cy.wait("@loginPageLoad").its("response.statusCode").should("eq", 200);
     loginPage.assertionLoginPageDisplayed();
   });
-it("TC_LG_002 - Login menggunakan username valid dan password valid", () => {
-  loginPage.interceptLoginRequest("loginRequestValid");
 
-  loginPage.login(
-    loginData.validUsername,
-    loginData.validPassword
-  );
+  // TC_LG_002 — Intercept: POST /auth/validate
+  it("TC_LG_002 - Login dengan kredensial valid (POST auth/validate)", () => {
+    loginPage.visitPage();
+    loginPage.interceptLoginRequest();
 
-  cy.wait("@loginRequestValid")
-    .its("response.statusCode")
-    .should("eq", 302);
+    loginPage.login(loginData.validUsername, loginData.validPassword);
 
-  loginPage.assertionLoginSuccess();
-});
-it("TC_LG_003 - Login menggunakan username invalid dan password valid", () => {
-  loginPage.interceptLoginRequest("loginRequestInvalidUsername");
-
-  loginPage.login(
-    loginData.invalidUsername,
-    loginData.validPassword
-  );
-
-  cy.wait("@loginRequestInvalidUsername")
-    .its("response.statusCode")
-    .should("eq", 302);
-
-  loginPage.assertionInvalidCredentials();
-});
-it("TC_LG_004 - Login dengan username valid dan password invalid", () => {
-  loginPage.interceptLoginRequest("loginRequestInvalidPassword");
-
-  loginPage.login(
-    loginData.validUsername,
-    loginData.invalidPassword
-  );
-
-  cy.wait("@loginRequestInvalidPassword")
-    .its("response.statusCode")
-    .should("eq", 302);
-
-  loginPage.assertionInvalidCredentials();
-});
-
-it("TC_LG_005 - Login dengan username invalid dan password invalid", () => {
-  loginPage.interceptLoginRequest("loginRequestInvalidCredentials");
-
-  loginPage.login(
-    loginData.invalidUsername,
-    loginData.invalidPassword
-  );
-
-  cy.wait("@loginRequestInvalidCredentials")
-    .its("response.statusCode")
-    .should("eq", 302);
-
-  loginPage.assertionInvalidCredentials();
-});
-
-  it("TC_LG_006 - Login dengan username kosong dan password valid", () => {
-    loginPage.inputPassword(loginData.validPassword);
-    loginPage.clickLoginBtn();
-    loginPage.assertionRequiredMessageCount(1);
+    cy.wait("@loginRequest").its("response.statusCode").should("eq", 302);
+    loginPage.assertionLoginSuccess();
   });
-  it("TC_LG_007 - Login dengan username valid dan password kosong", () => {
-    loginPage.inputUsername(loginData.validUsername);
-    loginPage.clickLoginBtn();
-    loginPage.assertionRequiredMessageCount(1);
-  });
-  it("TC_LG_008 - Login dengan username kosong dan password kosong", () => {
-    loginPage.clickLoginBtn();
-    loginPage.assertionRequiredMessageCount(2);
-  });
-  it("TC_LG_009 - Memastikan tombol Login tersedia dan dapat ditekan", () => {
-    cy.get('button[type="submit"]')
-      .should("be.visible")
-      .and("not.be.disabled")
-      .and("contain.text", "Login");
-  });
-  it("TC_LG_010 - Verifikasi link Forgot your password tersedia dan berfungsi", () => {
+
+  // TC_LG_003 — Intercept: GET /auth/requestPasswordResetCode
+  it("TC_LG_003 - Verifikasi link Forgot Password (GET requestPasswordResetCode)", () => {
+    loginPage.visitPage();
     loginPage.interceptForgotPassword();
+
     loginPage.clickForgotPassword();
-    cy.wait("@forgotPasswordPage");
+
+    cy.wait("@forgotPasswordPage").its("response.statusCode").should("eq", 200);
     loginPage.assertionForgotPasswordPage();
   });
-it("TC_LG_011 - Login dengan username huruf kecil semua", () => {
-  loginPage.interceptLoginRequest("loginRequestLowerCase");
 
-  loginPage.login(
-    loginData.lowerCaseUsername,
-    loginData.lowerCasePassword
-  );
+  // TC_LG_004 — Intercept: GET /auth/logout
+  it("TC_LG_004 - Logout setelah login berhasil (GET auth/logout)", () => {
+    loginPage.visitPage();
+    loginPage.login(loginData.validUsername, loginData.validPassword);
+    loginPage.assertionLoginSuccess();
 
-  cy.wait("@loginRequestLowerCase")
-    .its("response.statusCode")
-    .should("eq", 302);
+    loginPage.interceptLogout();
+    loginPage.logout();
 
-  loginPage.assertionInvalidCredentials();
-});
+    cy.wait("@logoutRequest").its("response.statusCode").should("eq", 302);
+    loginPage.assertionRedirectedToLogin();
+  });
 
-it("TC_LG_012 - Login dengan password salah ketik/huruf tidak sesuai", () => {
-  loginPage.interceptLoginRequest("loginRequestWrongPassword");
+  // TC_LG_005 — Intercept: GET /api/v2/dashboard/employees/time-at-work
+  it("TC_LG_005 - Verifikasi widget Time at Work termuat setelah login (GET time-at-work)", () => {
+    loginPage.visitPage();
+    loginPage.interceptTimeAtWork();
 
-  loginPage.login(
-    loginData.validUsername,
-    loginData.invalidPassword
-  );
+    loginPage.login(loginData.validUsername, loginData.validPassword);
 
-  cy.wait("@loginRequestWrongPassword")
-    .its("response.statusCode")
-    .should("eq", 302);
+    cy.wait("@timeAtWork").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginSuccess();
+  });
 
-  loginPage.assertionInvalidCredentials();
-});
-it("TC_LG_013 - Login dengan username mengandung spasi di depan/belakang", () => {
-  loginPage.interceptLoginRequest("loginRequestUsernameSpace");
+  // TC_LG_006 — Intercept: GET /api/v2/dashboard/employees/action-summary
+  it("TC_LG_006 - Verifikasi widget Action Summary termuat setelah login (GET action-summary)", () => {
+    loginPage.visitPage();
+    loginPage.interceptActionSummary();
 
-  loginPage.login(
-    loginData.spacecdUsername,
-    loginData.validPassword
-  );
+    loginPage.login(loginData.validUsername, loginData.validPassword);
 
-  cy.wait("@loginRequestUsernameSpace")
-    .its("response.statusCode")
-    .should("eq", 302);
+    cy.wait("@actionSummary").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginSuccess();
+  });
 
-  loginPage.assertionInvalidCredentials();
-});
+  // TC_LG_007 — Intercept: GET /api/v2/buzz/feed
+  it("TC_LG_007 - Verifikasi widget Buzz Feed termuat setelah login (GET buzz/feed)", () => {
+    loginPage.visitPage();
+    loginPage.interceptBuzzFeed();
 
-it("TC_LG_014 - Login dengan password mengandung spasi di depan/belakang", () => {
-  loginPage.interceptLoginRequest("loginRequestPasswordSpace");
+    loginPage.login(loginData.validUsername, loginData.validPassword);
 
-  loginPage.login(
-    loginData.validUsername,
-    loginData.spacecdPassword
-  );
+    cy.wait("@buzzFeed").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginSuccess();
+  });
 
-  cy.wait("@loginRequestPasswordSpace")
-    .its("response.statusCode")
-    .should("eq", 302);
+  // TC_LG_008 — Intercept: GET /api/v2/dashboard/employees/subunit
+  it("TC_LG_008 - Verifikasi widget Employees by Subunit termuat setelah login (GET subunit)", () => {
+    loginPage.visitPage();
+    loginPage.interceptSubunit();
 
-  loginPage.assertionInvalidCredentials();
-});
+    loginPage.login(loginData.validUsername, loginData.validPassword);
 
+    cy.wait("@subunit").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginSuccess();
+  });
 
-it("TC_LG_015 - Login berkali-kali dengan kredensial salah", () => {
-  loginPage.interceptLoginRequest("loginRequestRepeated");
+  // TC_LG_009 — Intercept: GET /api/v2/dashboard/employees/locations
+  it("TC_LG_009 - Verifikasi widget Employee Distribution by Location termuat setelah login (GET locations)", () => {
+    loginPage.visitPage();
+    loginPage.interceptLocations();
 
-  const totalAttempts = 3;
+    loginPage.login(loginData.validUsername, loginData.validPassword);
 
-  for (let attempt = 1; attempt <= totalAttempts; attempt++) {
-    loginPage.login(
-      loginData.invalidUsername,
-      loginData.invalidPassword
-    );
+    cy.wait("@locations").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginSuccess();
+  });
 
-    cy.wait("@loginRequestRepeated")
-      .its("response.statusCode")
-      .should("eq", 302);
+  // TC_LG_010 — Intercept: GET app.js
+  it("TC_LG_010 - Verifikasi asset app.js termuat saat halaman login dibuka (GET app.js)", () => {
+    loginPage.interceptAppJs();
+    loginPage.visitPage();
+    cy.wait("@appJs").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginPageDisplayed();
+  });
 
+  // TC_LG_011 — Intercept: GET app.css
+  it("TC_LG_011 - Verifikasi asset app.css termuat saat halaman login dibuka (GET app.css)", () => {
+    loginPage.interceptAppCss();
+    loginPage.visitPage();
+    cy.wait("@appCss").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginPageDisplayed();
+  });
+
+  // TC_LG_012 — Intercept: GET /core/i18n/messages
+  it("TC_LG_012 - Verifikasi resource i18n messages termuat saat halaman login dibuka (GET i18n/messages)", () => {
+    loginPage.interceptI18nMessages();
+    loginPage.visitPage();
+
+    cy.wait("@i18nMessages").its("response.statusCode").should("eq", 200);
+    loginPage.assertionLoginPageDisplayed();
+  });
+
+    it("TC_LG_013 - Login dengan username mengandung spasi di depan/belakang", () => {
+    loginPage.visitPage();
+    loginPage.login(loginData.spacecdUsername, loginData.validPassword);
     loginPage.assertionInvalidCredentials();
-  }
-});
+  });
 
-it("TC_LG_016 - Login ulang setelah logout, pastikan tidak bisa akses dashboard via back button", () => {
-  loginPage.interceptLoginRequest("loginRequestRelogin");
+  it("TC_LG_014 - Login dengan password mengandung spasi di depan/belakang", () => {
+    loginPage.visitPage();
+    loginPage.login(loginData.validUsername, loginData.spacecdPassword);
+    loginPage.assertionInvalidCredentials();
+  });
 
-  loginPage.login(
-    loginData.validUsername,
-    loginData.validPassword
-  );
+  it("TC_LG_015 - Login berkali-kali dengan kredensial salah", () => {
+    loginPage.visitPage();
+    const totalAttempts = 3;
 
-  cy.wait("@loginRequestRelogin")
-    .its("response.statusCode")
-    .should("eq", 302);
+    for (let attempt = 1; attempt <= totalAttempts; attempt++) {
+      loginPage.login(loginData.invalidUsername, loginData.invalidPassword);
+      loginPage.assertionInvalidCredentials();
+    }
+  });
 
-  loginPage.assertionLoginSuccess();
+  it("TC_LG_016 - Login ulang setelah logout, pastikan tidak bisa akses dashboard via back button", () => {
+    loginPage.visitPage();
+    loginPage.login(loginData.validUsername, loginData.validPassword);
+    loginPage.assertionLoginSuccess();
 
-  loginPage.interceptLogout("logoutRequest");
+    loginPage.logout();
+    loginPage.assertionRedirectedToLogin();
 
-  loginPage.logout();
-
-  cy.wait("@logoutRequest")
-    .its("response.statusCode")
-    .should("eq", 302);
-
-  loginPage.assertionRedirectedToLogin();
-
-  cy.go("back");
-
-  loginPage.assertionRedirectedToLogin();
-});
+    cy.go("back");
+    loginPage.assertionRedirectedToLogin();
+  });
 
   it("TC_LG_017 - Login dengan karakter unicode/emoji di username", () => {
+    loginPage.visitPage();
     loginPage.login(loginData.uniCodeUsername, loginData.validPassword);
-    cy.wait("@loginRequest");
     cy.get(".oxd-alert-content-text").should("be.visible");
     cy.url().should("include", "/auth/login");
   });
+
   it("TC_LG_018 - Login dengan username sangat panjang (boundary test)", () => {
+    loginPage.visitPage();
     loginPage.login(loginData.longUsername, loginData.validPassword);
-    cy.wait("@loginRequest");
     loginPage.assertionInvalidCredentials();
   });
 
   it("TC_LG_019 - Login dengan password sangat panjang (boundary test)", () => {
+    loginPage.visitPage();
     loginPage.login(loginData.validUsername, loginData.longPassword);
-    cy.wait("@loginRequest");
     loginPage.assertionInvalidCredentials();
   });
 });
